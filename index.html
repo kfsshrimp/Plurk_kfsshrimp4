@@ -1,0 +1,251 @@
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="width=device-width">
+<meta http-equiv="pragma" content="no-cache"> 
+<meta http-equiv="Cache-Control" content="no-cache, must-revalidate"> 
+<meta http-equiv="expires" content="0">
+<title>kfsshrimp4噗浪備份系統</title>
+<style>
+body{
+    background:#222;
+    color: #000;
+    margin: 0px;
+    padding: 0px;
+    text-align: center;
+    font-size: 20px;
+}
+button{
+    cursor: pointer;
+}
+a[href]:hover{
+    color: #f00;
+    transition-duration: 0.5s;
+}
+#MenuBox{
+    padding: 10px;
+    margin: 10px;
+}
+#Info{
+    margin: 10px;
+    padding: 10px;
+    border: 1px #fff solid;
+    border-radius: 10px;
+    background: #999;
+    color: #000;
+}
+#Plurk>div{
+    border: 1px #fff solid;
+    margin: 10px;
+    padding: 5px;
+    border-radius: 10px;
+    text-align: left;
+    background: #999;
+}
+#Plurk>div a{
+    width: fit-content;
+    display: grid;
+}
+#Plurk>div>div:not(.content){
+    display: none;
+}
+#Plurk>div img{
+    height: auto;
+    width: auto;
+    max-width: 100%;
+}
+</style>
+<script>
+    var JsonFile;
+    var Sys = {};
+    window.onload = ()=>{
+
+        for(var i=12;i>0;i--){
+            var opt = document.createElement("option");
+            opt.innerText = i;
+            //if(i===(new Date().getMonth()+1)) opt.setAttribute("selected","selected");
+
+            document.querySelector("#month").appendChild(opt);
+
+            
+        }
+
+        for(var i=new Date().getFullYear();i>new Date().getFullYear()-4;i--){
+            var opt = document.createElement("option");
+            opt.innerText = i;
+            document.querySelector("#year").appendChild(opt);
+        }
+
+
+        //月份篩選
+        document.querySelector("#submit").addEventListener("click",()=>{
+
+                document.querySelector("#Plurk").innerHTML = ``;
+
+                var year = document.querySelector("#year").value;
+                var month = document.querySelector("#month").value;
+                var keyword = document.querySelector("#keyword").value;
+
+                if(keyword===""){
+                    if(year==="" || month===""){
+
+                        if(new Date().getMonth()===0){
+                            year = new Date().getFullYear()-1;
+                            month = 12;
+                        }else{
+                            year = new Date().getFullYear();
+                            month = new Date().getMonth();
+                        }
+                    }
+                    document.querySelector("#year").value = year;
+                    document.querySelector("#month").value = month;
+                }
+
+                Sys.search = {
+                    "year":year,
+                    "month":month,
+                    "keyword":keyword
+                }
+                
+                LoadJson();
+
+        });
+
+    
+        
+        
+
+    }
+    function LoadJson(){
+
+        var file_name = `${Sys.search.year} ${Sys.search.month}.json`;
+
+        if(Sys.search.year==="" && Sys.search.month==="" && Sys.search.keyword!==""){
+            LoadJsonAll();
+            return;
+        }
+
+        fetch(file_name).then(response => response.json()).then(data => {
+
+            JsonFile = data;
+            ShowPlurk();
+
+        }).catch(error => {
+
+            document.querySelector("#Plurk").innerHTML = `<div>無資料或出現錯誤</div>`;
+            console.error(`Error:${error}`);
+        });
+    }
+
+    function LoadJsonAll(){
+
+        document.querySelector("#submit").setAttribute("disabled","disabled");
+        document.querySelector("#keyword").setAttribute("disabled","disabled");
+        document.querySelector("body").style.cursor = "progress";
+
+        Sys.search.year = Sys.search.year||new Date().getFullYear();
+        Sys.search.month = Sys.search.month||12;
+
+        var file_name = `${Sys.search.year} ${Sys.search.month}.json`;
+        fetch(file_name).then(response => response.json()).then(data => {
+
+            JsonFile = data;
+    
+            ShowPlurk();
+
+            setTimeout(()=>{
+
+                Sys.search.month--;
+                if(Sys.search.month<=0){
+                    Sys.search.month = 12;
+                    Sys.search.year--;
+                }
+                if(Sys.search.year<=new Date().getFullYear()-4){
+
+                    document.querySelector("#submit").removeAttribute("disabled");
+                    document.querySelector("#keyword").removeAttribute("disabled");
+                    document.querySelector("body").style.cursor = "";
+                    document.querySelector("#Plurk").innerHTML = document.querySelector("#Plurk").innerHTML||`<div>無資料或出現錯誤</div>`;
+                    return;
+                }
+
+                LoadJsonAll();
+            },100);
+        
+        }).catch(error => {
+            
+            Sys.search.month--;
+            if(Sys.search.month<=0){
+                Sys.search.month = 12;
+                Sys.search.year--;
+            }
+            if(Sys.search.year<=new Date().getFullYear()-4){
+
+                document.querySelector("#submit").removeAttribute("disabled");
+                document.querySelector("#keyword").removeAttribute("disabled");
+                document.querySelector("body").style.cursor = "";
+                document.querySelector("#Plurk").innerHTML = document.querySelector("#Plurk").innerHTML||`<div>無資料或出現錯誤</div>`;
+                return;
+            }
+
+            LoadJsonAll();
+        });
+
+
+    
+    }
+
+    function ShowPlurk(){
+
+        if(Sys.search.keyword!=="" && JSON.stringify(JsonFile.plurk).toLocaleUpperCase().indexOf(Sys.search.keyword.toLocaleUpperCase())===-1){
+            return;
+        }
+        
+
+        var plurk_html = document.createElement("div");
+        plurk_html.innerHTML = `<a href="${JsonFile.url}">噗浪原網址${JsonFile.url}</a>`;
+        
+        document.querySelector("#Plurk").appendChild(plurk_html);
+
+        JsonFile.plurk.forEach((plurk,i) => {
+
+            if(Sys.search.keyword!=="" && plurk.toLocaleUpperCase().indexOf(Sys.search.keyword.toLocaleUpperCase())===-1 && i!==0){
+                return;
+            }
+
+            var plurk_html = document.createElement("div");
+            plurk_html.innerHTML = plurk;
+            
+            document.querySelector("#Plurk").appendChild(plurk_html);
+        });
+
+        document.querySelectorAll("img").forEach(img=>{
+
+            if(/^http/.test(img.src)===false) img.src = img.src.replace("file","https");
+            if(JsonFile.img_base64[img.src]===undefined || JsonFile.img_base64[img.src]==="") return;
+
+            img.src = JsonFile.img_base64[img.src];
+        });
+
+        document.querySelectorAll("a").forEach(a=>{
+            a.setAttribute("target","_blank");
+        });
+
+
+        
+        
+    }
+    
+</script>
+<body>
+
+    <div id="Info"><a href="https://www.plurk.com/kfsshrimp4" target="_blank">https://www.plurk.com/kfsshrimp4</a><BR>噗浪備份系統<br>内含成人內容，未滿18歲禁止使用</div>
+    <div id="MenuBox">
+        <select id="year"><option value="">年</option></select>
+        <select id="month"><option value="">月</option></select>
+       
+        <input type="text" id="keyword" placeholder="關鍵字">
+        <button id="submit">搜尋</button>
+        <!--<input id="File" type="file"> <button>讀取</button>-->
+    </div>
+
+    <div id="Plurk"></div>
+</body>

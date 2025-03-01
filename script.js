@@ -103,7 +103,7 @@ function PlurkOutJSON(){
             URL.revokeObjectURL(url);
 
         }
-    },1);
+    },100);
     
 }
 
@@ -218,7 +218,7 @@ async function ImgToBase64(img_list,img_base64 = {}, count = 0){
 
                 resolve( ImgToBase64(img_list,img_base64,count) );
 
-            },50);
+            },100);
         }
         reader.onerror = reject;
         reader.readAsDataURL(blob);
