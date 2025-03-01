@@ -1,3 +1,7 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getDatabase, ref, set, get, onValue ,update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+
 var Ex = {
     style:document.createElement("style")
 };
@@ -15,11 +19,40 @@ Ex.style.innerHTML = `
 document.head.appendChild(Ex.style);
 
 
-
 if(window.location.href.indexOf("https://www.plurk.com/p/")!==-1) PlurkOutJSON();
 
 if(window.location.href.indexOf("https://images.plurk.com/")!==-1) PlurkImageForm();
 
+
+window.onload = ()=>{
+
+    Ex.WebConfig = {
+        Count:1
+    }
+
+    var db = getDatabase( 
+        initializeApp(
+            {databaseURL: "https://plurk-kfsshrimp4-default-rtdb.firebaseio.com"}
+        )
+    );
+
+    get( ref(db,'/') ).then( (t)=>{
+        
+        if(t.val()===null){
+
+            set(ref(db,'/'), {WebConfig:Ex.WebConfig});
+
+        }else{
+
+            Ex.WebConfig = t.val().WebConfig;
+            Ex.WebConfig.Count++;
+
+            update(ref(db,'/'),{WebConfig:Ex.WebConfig});
+
+        }
+    });
+    
+}
 
 
 function PlurkOutJSON(){
