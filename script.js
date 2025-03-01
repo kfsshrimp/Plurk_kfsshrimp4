@@ -51,6 +51,58 @@ window.onload = ()=>{
 
         }
     });
+
+
+
+    for(var i=12;i>0;i--){
+        var opt = document.createElement("option");
+        opt.innerText = i;
+        //if(i===(new Date().getMonth()+1)) opt.setAttribute("selected","selected");
+
+        document.querySelector("#month").appendChild(opt);
+
+    }
+
+    for(var i=new Date().getFullYear();i>new Date().getFullYear()-4;i--){
+        var opt = document.createElement("option");
+        opt.innerText = i;
+        document.querySelector("#year").appendChild(opt);
+    }
+
+
+    //月份篩選
+    document.querySelector("#submit").addEventListener("click",()=>{
+
+        document.querySelector("#Plurk").innerHTML = ``;
+
+        var year = document.querySelector("#year").value;
+        var month = document.querySelector("#month").value;
+        var keyword = document.querySelector("#keyword").value;
+
+        if(keyword===""){
+            if(year==="" || month===""){
+
+                if(new Date().getMonth()===0){
+                    year = new Date().getFullYear()-1;
+                    month = 12;
+                }else{
+                    year = new Date().getFullYear();
+                    month = new Date().getMonth();
+                }
+            }
+            document.querySelector("#year").value = year;
+            document.querySelector("#month").value = month;
+        }
+
+        Sys.search = {
+            "year":year,
+            "month":month,
+            "keyword":keyword
+        }
+        
+        LoadJson();
+
+    });
     
 }
 
