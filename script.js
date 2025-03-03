@@ -36,23 +36,24 @@ window.onload = ()=>{
         )
     );
 
-    get( ref(db,'/') ).then( (t)=>{
-        
-        if(t.val()===null){
+    if(sessionStorage["WebCount"]===undefined){
+        sessionStorage.setItem("WebCount",1);
+        get( ref(db,'/') ).then( (t)=>{
+            
+            if(t.val()===null){
 
-            set(ref(db,'/'), {WebConfig:Ex.WebConfig});
+                set(ref(db,'/'), {WebConfig:Ex.WebConfig});
 
-        }else{
+            }else{
 
-            Ex.WebConfig = t.val().WebConfig;
-            Ex.WebConfig.Count++;
+                Ex.WebConfig = t.val().WebConfig;
+                Ex.WebConfig.Count++;
 
-            update(ref(db,'/'),{WebConfig:Ex.WebConfig});
+                update(ref(db,'/'),{WebConfig:Ex.WebConfig});
 
-        }
-    });
-
-
+            }
+        });
+    }
 
     for(var i=12;i>0;i--){
         var opt = document.createElement("option");
