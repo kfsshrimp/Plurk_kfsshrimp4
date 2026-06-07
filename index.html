@@ -71,8 +71,8 @@ a[href]:hover{
         }
 
 
-        document.querySelector("#Plurk").innerHTML = `<div>無資料或出現錯誤</div>`;
         
+
         fetch(file_name).then(response => response.json()).then(data => {
 
             JsonFile = data;
@@ -148,6 +148,8 @@ a[href]:hover{
         if(Sys.search.keyword!=="" && JSON.stringify(JsonFile.plurk).toLocaleUpperCase().indexOf(Sys.search.keyword.toLocaleUpperCase())===-1){
             return;
         }
+
+        
         
 
         var plurk_html = document.createElement("div");
