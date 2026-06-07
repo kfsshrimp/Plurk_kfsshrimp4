@@ -60,11 +60,6 @@ a[href]:hover{
     window.onload = ()=>{
 
         
-
-    
-        
-        
-
     }
     function LoadJson(){
 
@@ -75,6 +70,9 @@ a[href]:hover{
             return;
         }
 
+
+        document.querySelector("#Plurk").innerHTML = `<div>無資料或出現錯誤</div>`;
+        
         fetch(file_name).then(response => response.json()).then(data => {
 
             JsonFile = data;
